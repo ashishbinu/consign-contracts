@@ -4,6 +4,7 @@
 
 * See if the current wallet is part of any multisig wallet created from our smart contract (ex : isInMultisig(address))
 * create certificate function to route the call to multisig for nft certificate creation.
+* create 3 not working with matic testnet
 
 
 ## UI

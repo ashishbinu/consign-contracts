@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: AGPL-3.0
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.17;
 
 import {CREATE3Script} from "./base/CREATE3Script.sol";
-import {Contract} from "../src/Contract.sol";
+import {MultiSigWallet} from "../src/MultiSigWallet.sol";
 
 contract DeployScript is CREATE3Script {
     constructor() CREATE3Script(vm.envString("VERSION")) {}
 
-    function run() external returns (Contract c) {
+    function run() external returns (MultiSigWallet c) {
         uint256 deployerPrivateKey = uint256(vm.envBytes32("PRIVATE_KEY"));
-
-        uint256 param = 123;
 
         vm.startBroadcast(deployerPrivateKey);
 
-        c = Contract(
-            create3.deploy(
-                getCreate3ContractSalt("Contract"), bytes.concat(type(Contract).creationCode, abi.encode(param))
+        c = MultiSigWallet(
+            payable(
+                create3.deploy(
+                    getCreate3ContractSalt("MultiSigWallet"), bytes.concat(type(MultiSigWallet).creationCode)
+                )
             )
         );
 
