@@ -11,6 +11,7 @@ verbosity = 4
 goerli = "${RPC_URL_GOERLI}"
 mainnet = "${RPC_URL_MAINNET}"
 polygon = "${RPC_URL_POLYGON}"
+mumbai = "${RPC_URL_MUMBAI}"
 localhost = "${RPC_URL_LOCALHOST}"
 
 [etherscan]
