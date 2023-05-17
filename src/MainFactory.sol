@@ -1,10 +1,56 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "solmate/tokens/ERC721.sol";
-import "openzeppelin-contracts/contracts/utils/Strings.sol";
+import "openzeppelin-contracts/contracts/proxy/Clones.sol";
+import "openzeppelin-contracts/contracts/access/Ownable.sol";
 
-contract MainFactory {
-    address public nftAddress;
+interface INFT {
+    function safeMint(address _to, string memory _uri) external returns (uint256);
+    function safeTransferFrom(address _from, address _to, uint256 _tokenId) external;
+}
+
+interface IMultiSigWallet {
+    function initialize(address[] memory _owners, uint256 _numConfirmationsRequired) external;
+    function submitTransaction(address _to, uint256 _value, bytes memory _data) external;
+    function executeTransaction(uint256 _txIndex) external;
+    function revokeConfirmation(uint256 _txIndex) external;
+    function getOwners() external view returns (address[] memory);
+    function getTransactionCount() external view returns (uint256);
+}
+
+contract MainFactory is Ownable {
+    address public certificateNFTAddress;
     address public multiSigWalletAddress;
+
+    mapping(address => address[]) public multiSigWalletsOf;
+
+    constructor(address _certificateNFTAddress, address _multiSigWalletAddress) {
+        certificateNFTAddress = _certificateNFTAddress;
+        multiSigWalletAddress = _multiSigWalletAddress;
+    }
+
+    function setCertificateNFTAddress(address _addr) public onlyOwner {
+        certificateNFTAddress = _addr;
+    }
+
+    function setMultiSigWalletAddress(address _addr) public onlyOwner {
+        multiSigWalletAddress = _addr;
+    }
+
+    function issueCertificate(address _to, string memory _uri) public {
+        uint256 tokenId = INFT(certificateNFTAddress).safeMint(_to, _uri);
+        INFT(certificateNFTAddress).safeTransferFrom(msg.sender, _to, tokenId);
+    }
+
+    // TODO: burn certificate
+    function deleteCertificate(uint256 tokenId) public {}
+
+    function createMultiSigWallet(address[] memory _owners, uint256 _numConfirmationsRequired) public {
+        address proxy = Clones.clone(multiSigWalletAddress);
+        IMultiSigWallet(proxy).initialize(_owners, _numConfirmationsRequired);
+
+        for (uint256 i = 0; i < _owners.length; i++) {
+            multiSigWalletsOf[_owners[i]].push(proxy);
+        }
+    }
 }
