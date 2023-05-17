@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import {CREATE3Script} from "./base/CREATE3Script.sol";
 import {MultiSigWallet} from "../src/MultiSigWallet.sol";
 
-contract DeployScript is CREATE3Script {
+contract MultiSigWalletDeployScript is CREATE3Script {
     constructor() CREATE3Script(vm.envString("VERSION")) {}
 
     function run() external returns (MultiSigWallet c) {

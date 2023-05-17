@@ -5,7 +5,7 @@ import {CREATE3Script} from "./base/CREATE3Script.sol";
 import {NFT} from "../src/NFT.sol";
 import {BurnAuth} from "../src/EnumDeclaration.sol";
 
-contract DeployScript is CREATE3Script {
+contract NFTDeployScript is CREATE3Script {
     constructor() CREATE3Script(vm.envString("VERSION")) {}
 
     function run() external returns (NFT c) {
