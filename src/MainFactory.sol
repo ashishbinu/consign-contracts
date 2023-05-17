@@ -45,12 +45,14 @@ contract MainFactory is Ownable {
     // TODO: burn certificate
     function deleteCertificate(uint256 tokenId) public {}
 
-    function createMultiSigWallet(address[] memory _owners, uint256 _numConfirmationsRequired) public {
+    function createMultiSigWallet(address[] memory _owners, uint256 _numConfirmationsRequired) public returns(address){
         address proxy = Clones.clone(multiSigWalletAddress);
         IMultiSigWallet(proxy).initialize(_owners, _numConfirmationsRequired);
 
         for (uint256 i = 0; i < _owners.length; i++) {
             multiSigWalletsOf[_owners[i]].push(proxy);
         }
+
+        return proxy;
     }
 }
