@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "openzeppelin-contracts/contracts/proxy/Clones.sol";
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
+import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 
 interface INFT {
     function safeMint(address _to, string memory _uri) external returns (uint256);
