@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {ERC721} from "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
+import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 import {ERC721Enumerable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import {ERC721URIStorage} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import {ERC721Burnable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Burnable.sol";
@@ -39,7 +40,7 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
         return _burnAuth;
     }
 
-    function safeMint(address to, string memory uri) public returns (uint256) {
+    function safeMint(address to, string memory uri) public onlyOwner returns (uint256) {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -68,8 +69,13 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
         override(ERC721)
     {
         super._afterTokenTransfer(from, to, tokenId, batchSize);
+        if (from != address(0)) {
+            _issueToken(from, to, tokenId);
+        }
+    }
 
-        _issueToken(from, to, tokenId);
+    function isApprovedForAll(address owner, address operator) public view override(ERC721, IERC721) returns (bool) {
+        return msg.sender == super.owner() || super.isApprovedForAll(owner, operator);
     }
 
     // TODO: do the burning validation later. add modifiers to functions

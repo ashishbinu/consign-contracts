@@ -7,6 +7,8 @@ import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 interface INFT {
     function safeMint(address _to, string memory _uri) external returns (uint256);
     function safeTransferFrom(address _from, address _to, uint256 _tokenId) external;
+    function approve(address _to, uint256 _tokenId) external;
+    function owner() external returns (address);
 }
 
 interface IMultiSigWallet {
@@ -38,14 +40,17 @@ contract MainFactory is Ownable {
     }
 
     function issueCertificate(address _to, string memory _uri) public {
-        uint256 tokenId = INFT(certificateNFTAddress).safeMint(_to, _uri);
+        uint256 tokenId = INFT(certificateNFTAddress).safeMint(msg.sender, _uri);
         INFT(certificateNFTAddress).safeTransferFrom(msg.sender, _to, tokenId);
     }
 
     // TODO: burn certificate
     function deleteCertificate(uint256 tokenId) public {}
 
-    function createMultiSigWallet(address[] memory _owners, uint256 _numConfirmationsRequired) public returns(address){
+    function createMultiSigWallet(address[] memory _owners, uint256 _numConfirmationsRequired)
+        public
+        returns (address)
+    {
         address proxy = Clones.clone(multiSigWalletAddress);
         IMultiSigWallet(proxy).initialize(_owners, _numConfirmationsRequired);
 
