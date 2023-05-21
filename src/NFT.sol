@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {ERC721} from "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
@@ -8,49 +8,33 @@ import {ERC721URIStorage} from "openzeppelin-contracts/contracts/token/ERC721/ex
 import {ERC721Burnable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {Counters} from "openzeppelin-contracts/contracts/utils/Counters.sol";
-import {BurnAuth} from "src/EnumDeclaration.sol";
+import {IERC5484} from "src/interfaces/IERC5484.sol";
 
 // REFERENCE: https://github.com/Bisonai/sbt-contracts/blob/master/contracts/SBT.sol
 contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable {
+    event Issued(address indexed from, address indexed to, uint256 indexed tokenId, IERC5484.BurnAuth burnAuth);
+
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
-
     string private __baseURI;
-
-    BurnAuth private immutable _burnAuth;
-
+    IERC5484.BurnAuth private immutable _burnAuth;
     mapping(uint256 => bool) private _issued;
 
-    event Issued(address indexed from, address indexed to, uint256 indexed tokenId, BurnAuth burnAuth);
-
-    constructor(string memory name_, string memory symbol_, string memory baseURI_, BurnAuth burnAuth_)
+    constructor(string memory name_, string memory symbol_, string memory baseURI_, IERC5484.BurnAuth burnAuth_)
         ERC721(name_, symbol_)
     {
         __baseURI = baseURI_;
         _burnAuth = burnAuth_;
     }
 
-    function _baseURI() internal view override returns (string memory) {
-        return __baseURI;
-    }
-
-    // TODO: Make it better later
-    function burnAuth( /*uint256 tokenId*/ ) public view returns (BurnAuth) {
-        return _burnAuth;
-    }
-
-    function safeMint(address to, string memory uri) public onlyOwner returns (uint256) {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
-        return tokenId;
-    }
-
     function _issueToken(address from, address to, uint256 tokenId) private {
         _issued[tokenId] = true;
         emit Issued(from, to, tokenId, _burnAuth);
+    }
+
+    function _baseURI() internal view override returns (string memory) {
+        return __baseURI;
     }
 
     // The following functions are overrides required by Solidity.
@@ -92,5 +76,18 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
     // TODO: Update it to support the interface like in ERC5484
     function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
         return super.supportsInterface(interfaceId);
+    }
+
+    // TODO: Make it better later
+    function burnAuth( /*uint256 tokenId*/ ) public view returns (IERC5484.BurnAuth) {
+        return _burnAuth;
+    }
+
+    function safeMint(address to, string memory uri) public onlyOwner returns (uint256) {
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _safeMint(to, tokenId);
+        _setTokenURI(tokenId, uri);
+        return tokenId;
     }
 }
