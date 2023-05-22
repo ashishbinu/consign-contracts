@@ -40,6 +40,7 @@ contract MainFactory is Ownable {
     }
 
     function issueCertificate(address _to, string memory _uri) external {
+        require(_to != address(0), "MainFactory: Can't issue certificate to address(0)");
         uint256 tokenId = INFT(certificateNFTAddress).safeMint(msg.sender, _uri);
         INFT(certificateNFTAddress).safeTransferFrom(msg.sender, _to, tokenId);
     }
