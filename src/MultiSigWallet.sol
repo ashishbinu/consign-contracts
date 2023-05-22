@@ -29,17 +29,17 @@ contract MultiSigWallet is Initializable, Ownable {
     event ExecuteTransaction(address indexed owner, uint256 indexed txIndex);
 
     modifier txExists(uint256 _txIndex) {
-        require(_txIndex < transactions.length, "tx does not exist");
+        require(_txIndex < transactions.length, "MultiSigWallet: Transaction does not exist");
         _;
     }
 
     modifier notExecuted(uint256 _txIndex) {
-        require(!transactions[_txIndex].executed, "tx already executed");
+        require(!transactions[_txIndex].executed, "MultiSigWallet: Transaction already executed");
         _;
     }
 
     modifier notConfirmed(uint256 _txIndex) {
-        require(!isConfirmed[_txIndex][msg.sender], "tx already confirmed");
+        require(!isConfirmed[_txIndex][msg.sender], "MultiSigWallet: Transaction already confirmed");
         _;
     }
 
@@ -48,16 +48,16 @@ contract MultiSigWallet is Initializable, Ownable {
     }
 
     function initialize(address[] memory _owners, uint256 _numConfirmationsRequired) external initializer {
-        require(_owners.length > 0, "owners required");
+        require(_owners.length > 0, "MultiSigWallet: Number of owners are zero");
         require(
             _numConfirmationsRequired > 0 && _numConfirmationsRequired <= _owners.length,
-            "invalid number of required confirmations"
+            "MultiSigWallet: Required confirmations is invalid"
         );
 
         for (uint256 i = 0; i < _owners.length; i++) {
             address owner = _owners[i];
-            require(owner != address(0), "invalid owner");
-            require(!isOwner[owner], "owner not unique");
+            require(owner != address(0), "MultiSigWallet: 0x0 can't be owner");
+            require(!isOwner[owner], "MultiSigWallet: Owner is not unique");
 
             isOwner[owner] = true;
             owners.push(owner);
@@ -91,12 +91,15 @@ contract MultiSigWallet is Initializable, Ownable {
     function executeTransaction(uint256 _txIndex) external onlyOwner txExists(_txIndex) notExecuted(_txIndex) {
         Transaction storage transaction = transactions[_txIndex];
 
-        require(transaction.numConfirmations >= numConfirmationsRequired, "cannot execute tx");
+        require(
+            transaction.numConfirmations >= numConfirmationsRequired,
+            "MultiSigWallet: Number of confirmation is less than required"
+        );
 
         transaction.executed = true;
 
         (bool success,) = transaction.to.call{value: transaction.value}(transaction.data);
-        require(success, "tx failed");
+        require(success, "MultiSigWallet: Transaction call failed");
 
         emit ExecuteTransaction(msg.sender, _txIndex);
     }
@@ -104,7 +107,7 @@ contract MultiSigWallet is Initializable, Ownable {
     function revokeConfirmation(uint256 _txIndex) external onlyOwner txExists(_txIndex) notExecuted(_txIndex) {
         Transaction storage transaction = transactions[_txIndex];
 
-        require(isConfirmed[_txIndex][msg.sender], "tx not confirmed");
+        require(isConfirmed[_txIndex][msg.sender], "MultiSigWallet: Transaction not confirmed");
 
         transaction.numConfirmations -= 1;
         isConfirmed[_txIndex][msg.sender] = false;
