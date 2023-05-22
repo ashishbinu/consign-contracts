@@ -31,24 +31,24 @@ contract MainFactory is Ownable {
         multiSigWalletAddress = _multiSigWalletAddress;
     }
 
-    function setCertificateNFTAddress(address _addr) public onlyOwner {
+    function setCertificateNFTAddress(address _addr) external onlyOwner {
         certificateNFTAddress = _addr;
     }
 
-    function setMultiSigWalletAddress(address _addr) public onlyOwner {
+    function setMultiSigWalletAddress(address _addr) external onlyOwner {
         multiSigWalletAddress = _addr;
     }
 
-    function issueCertificate(address _to, string memory _uri) public {
+    function issueCertificate(address _to, string memory _uri) external {
         uint256 tokenId = INFT(certificateNFTAddress).safeMint(msg.sender, _uri);
         INFT(certificateNFTAddress).safeTransferFrom(msg.sender, _to, tokenId);
     }
 
     // TODO: burn certificate
-    function deleteCertificate(uint256 tokenId) public {}
+    function deleteCertificate(uint256 tokenId) external {}
 
     function createMultiSigWallet(address[] memory _owners, uint256 _numConfirmationsRequired)
-        public
+        external
         returns (address)
     {
         address proxy = Clones.clone(multiSigWalletAddress);

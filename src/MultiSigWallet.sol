@@ -53,7 +53,7 @@ contract MultiSigWallet is Initializable {
         emit Deposit(msg.sender, msg.value, address(this).balance);
     }
 
-    function initialize(address[] memory _owners, uint256 _numConfirmationsRequired) public initializer {
+    function initialize(address[] memory _owners, uint256 _numConfirmationsRequired) external initializer {
         require(_owners.length > 0, "owners required");
         require(
             _numConfirmationsRequired > 0 && _numConfirmationsRequired <= _owners.length,
@@ -72,7 +72,7 @@ contract MultiSigWallet is Initializable {
         numConfirmationsRequired = _numConfirmationsRequired;
     }
 
-    function submitTransaction(address _to, uint256 _value, bytes memory _data) public onlyOwner {
+    function submitTransaction(address _to, uint256 _value, bytes memory _data) external onlyOwner {
         uint256 txIndex = transactions.length;
 
         transactions.push(Transaction({to: _to, value: _value, data: _data, executed: false, numConfirmations: 0}));
@@ -81,7 +81,7 @@ contract MultiSigWallet is Initializable {
     }
 
     function confirmTransaction(uint256 _txIndex)
-        public
+        external
         onlyOwner
         txExists(_txIndex)
         notExecuted(_txIndex)
@@ -94,7 +94,7 @@ contract MultiSigWallet is Initializable {
         emit ConfirmTransaction(msg.sender, _txIndex);
     }
 
-    function executeTransaction(uint256 _txIndex) public onlyOwner txExists(_txIndex) notExecuted(_txIndex) {
+    function executeTransaction(uint256 _txIndex) external onlyOwner txExists(_txIndex) notExecuted(_txIndex) {
         Transaction storage transaction = transactions[_txIndex];
 
         require(transaction.numConfirmations >= numConfirmationsRequired, "cannot execute tx");
@@ -107,7 +107,7 @@ contract MultiSigWallet is Initializable {
         emit ExecuteTransaction(msg.sender, _txIndex);
     }
 
-    function revokeConfirmation(uint256 _txIndex) public onlyOwner txExists(_txIndex) notExecuted(_txIndex) {
+    function revokeConfirmation(uint256 _txIndex) external onlyOwner txExists(_txIndex) notExecuted(_txIndex) {
         Transaction storage transaction = transactions[_txIndex];
 
         require(isConfirmed[_txIndex][msg.sender], "tx not confirmed");
@@ -118,16 +118,16 @@ contract MultiSigWallet is Initializable {
         emit RevokeConfirmation(msg.sender, _txIndex);
     }
 
-    function getOwners() public view returns (address[] memory) {
+    function getOwners() external view returns (address[] memory) {
         return owners;
     }
 
-    function getTransactionCount() public view returns (uint256) {
+    function getTransactionCount() external view returns (uint256) {
         return transactions.length;
     }
 
     function getTransaction(uint256 _txIndex)
-        public
+        external
         view
         returns (address to, uint256 value, bytes memory data, bool executed, uint256 numConfirmations)
     {
