@@ -28,9 +28,30 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
         _burnAuth = burnAuth_;
     }
 
-    function _issueToken(address from, address to, uint256 tokenId) private {
-        _issued[tokenId] = true;
-        emit Issued(from, to, tokenId, _burnAuth);
+    function safeMint(address to, string memory uri) external onlyOwner returns (uint256) {
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _safeMint(to, tokenId);
+        _setTokenURI(tokenId, uri);
+        return tokenId;
+    }
+
+    // TODO: Make it better later
+    function burnAuth( /*uint256 tokenId*/ ) external view returns (IERC5484.BurnAuth) {
+        return _burnAuth;
+    }
+
+    function isApprovedForAll(address owner, address operator) public view override(ERC721, IERC721) returns (bool) {
+        return msg.sender == super.owner() || super.isApprovedForAll(owner, operator);
+    }
+
+    function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
+        return super.tokenURI(tokenId);
+    }
+
+    // TODO: Update it to support the interface like in ERC5484
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
+        return super.supportsInterface(interfaceId);
     }
 
     function _baseURI() internal view override returns (string memory) {
@@ -56,7 +77,8 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
         if (from != address(0)) {
             _issueToken(from, to, tokenId);
         }
-    }
+
+}
 
     // TODO: do the burning validation later. add modifiers to functions
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
@@ -65,30 +87,8 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
         super._burn(tokenId);
     }
 
-    function isApprovedForAll(address owner, address operator) public view override(ERC721, IERC721) returns (bool) {
-        return msg.sender == super.owner() || super.isApprovedForAll(owner, operator);
-    }
-
-
-    function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
-        return super.tokenURI(tokenId);
-    }
-
-    // TODO: Update it to support the interface like in ERC5484
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
-        return super.supportsInterface(interfaceId);
-    }
-
-    // TODO: Make it better later
-    function burnAuth( /*uint256 tokenId*/ ) external view returns (IERC5484.BurnAuth) {
-        return _burnAuth;
-    }
-
-    function safeMint(address to, string memory uri) external onlyOwner returns (uint256) {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
-        return tokenId;
+    function _issueToken(address from, address to, uint256 tokenId) private {
+        _issued[tokenId] = true;
+        emit Issued(from, to, tokenId, _burnAuth);
     }
 }
