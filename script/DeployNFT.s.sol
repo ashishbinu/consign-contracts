@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import {CREATE3Script} from "./base/CREATE3Script.sol";
 import {NFT} from "../src/NFT.sol";
-import {BurnAuth} from "../src/EnumDeclaration.sol";
+import {IERC5484} from "../src/interfaces/IERC5484.sol";
 
 contract NFTDeployScript is CREATE3Script {
     constructor() CREATE3Script(vm.envString("VERSION")) {}
@@ -14,7 +14,7 @@ contract NFTDeployScript is CREATE3Script {
         string memory name = "Certificate";
         string memory symbol = "CRT";
         string memory baseURI = "https://example.com";
-        BurnAuth burnAuth = BurnAuth.ReceiverOnly;
+        IERC5484.BurnAuth burnAuth = IERC5484.BurnAuth.OwnerOnly;
 
         vm.startBroadcast(deployerPrivateKey);
 

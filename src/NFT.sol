@@ -58,16 +58,17 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
         }
     }
 
-    function isApprovedForAll(address owner, address operator) public view override(ERC721, IERC721) returns (bool) {
-        return msg.sender == super.owner() || super.isApprovedForAll(owner, operator);
-    }
-
     // TODO: do the burning validation later. add modifiers to functions
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
         // require(, "NFT: Caller doesn't have burn permission");
         _issued[tokenId] = false;
         super._burn(tokenId);
     }
+
+    function isApprovedForAll(address owner, address operator) public view override(ERC721, IERC721) returns (bool) {
+        return msg.sender == super.owner() || super.isApprovedForAll(owner, operator);
+    }
+
 
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
@@ -79,11 +80,11 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
     }
 
     // TODO: Make it better later
-    function burnAuth( /*uint256 tokenId*/ ) public view returns (IERC5484.BurnAuth) {
+    function burnAuth( /*uint256 tokenId*/ ) external view returns (IERC5484.BurnAuth) {
         return _burnAuth;
     }
 
-    function safeMint(address to, string memory uri) public onlyOwner returns (uint256) {
+    function safeMint(address to, string memory uri) external onlyOwner returns (uint256) {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
