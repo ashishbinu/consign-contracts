@@ -2,8 +2,9 @@
 pragma solidity 0.8.17;
 
 import {Initializable} from "openzeppelin-contracts/contracts/proxy/utils/Initializable.sol";
+import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 
-contract MultiSigWallet is Initializable {
+contract MultiSigWallet is Initializable, Ownable {
     struct Transaction {
         address to;
         uint256 value;
@@ -26,11 +27,6 @@ contract MultiSigWallet is Initializable {
     event ConfirmTransaction(address indexed owner, uint256 indexed txIndex);
     event RevokeConfirmation(address indexed owner, uint256 indexed txIndex);
     event ExecuteTransaction(address indexed owner, uint256 indexed txIndex);
-
-    modifier onlyOwner() {
-        require(isOwner[msg.sender], "not owner");
-        _;
-    }
 
     modifier txExists(uint256 _txIndex) {
         require(_txIndex < transactions.length, "tx does not exist");
