@@ -77,8 +77,7 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
         if (from != address(0)) {
             _issueToken(from, to, tokenId);
         }
-
-}
+    }
 
     // TODO: do the burning validation later. add modifiers to functions
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
