@@ -54,12 +54,6 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
         return super.supportsInterface(interfaceId);
     }
 
-    function _baseURI() internal view override returns (string memory) {
-        return __baseURI;
-    }
-
-    // The following functions are overrides required by Solidity.
-
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
         internal
         override(ERC721, ERC721Enumerable)
@@ -84,6 +78,10 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
         // require(, "NFT: Caller doesn't have burn permission");
         _issued[tokenId] = false;
         super._burn(tokenId);
+    }
+
+    function _baseURI() internal view override returns (string memory) {
+        return __baseURI;
     }
 
     function _issueToken(address from, address to, uint256 tokenId) private {
