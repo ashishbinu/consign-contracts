@@ -19,9 +19,9 @@ contract Deploy is Test {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        address a = address(new NFT(name,symbol,baseURI,burnAuth));
+        address c = address(new MainFactory());
+        address a = address(new NFT(name,symbol,baseURI,burnAuth,c));
         address b = address(new MultiSigWallet());
-        address c = address(new MainFactory(a,b));
 
         console2.log("NFT : ", a);
         console2.log("MultiSigWallet : ", b);

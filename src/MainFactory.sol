@@ -12,12 +12,7 @@ contract MainFactory is Ownable {
 
     mapping(address => address[]) public multiSigWalletsOf;
 
-    constructor(address _certificateNFTAddress, address _multiSigWalletAddress) {
-        nft = NFT(_certificateNFTAddress);
-        multiSigWallet = MultiSigWallet(payable(_multiSigWalletAddress));
-    }
-
-    function setCertificateNFTAddress(address _addr) external onlyOwner {
+   function setCertificateNFTAddress(address _addr) external onlyOwner {
         nft = NFT(_addr);
     }
 
@@ -25,14 +20,17 @@ contract MainFactory is Ownable {
         multiSigWallet = MultiSigWallet(payable(_addr));
     }
 
-    function issueCertificate(address _to, string memory _uri) external {
+    function issueCertificate(address _to, string memory _uri) external returns (uint256){
         require(_to != address(0), "MainFactory: Can't issue certificate to address(0)");
         uint256 tokenId = nft.safeMint(msg.sender, _uri);
         nft.safeTransferFrom(msg.sender, _to, tokenId);
+        return tokenId;
     }
 
     // TODO: burn certificate
-    function deleteCertificate(uint256 tokenId) external {}
+    function deleteCertificate(uint256 tokenId) external {
+        nft.burn(tokenId);
+    }
 
     function createMultiSigWallet(address[] memory _owners, uint256 _numConfirmationsRequired)
         external

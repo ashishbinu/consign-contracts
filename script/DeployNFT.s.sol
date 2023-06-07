@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import {CREATE3Script} from "./base/CREATE3Script.sol";
 import {NFT} from "../src/NFT.sol";
 import {IERC5484} from "../src/interfaces/IERC5484.sol";
+import {MainFactoryDeployScript} from "./DeployMainFactory.s.sol";
 
 contract NFTDeployScript is CREATE3Script {
     constructor() CREATE3Script(vm.envString("VERSION")) {}
@@ -15,13 +16,14 @@ contract NFTDeployScript is CREATE3Script {
         string memory symbol = "CRT";
         string memory baseURI = "https://example.com";
         IERC5484.BurnAuth burnAuth = IERC5484.BurnAuth.OwnerOnly;
+        address forwarder = address(new MainFactoryDeployScript().run());
 
         vm.startBroadcast(deployerPrivateKey);
 
         c = NFT(
             create3.deploy(
                 getCreate3ContractSalt("NFT"),
-                bytes.concat(type(NFT).creationCode, abi.encode(name, symbol, baseURI, burnAuth))
+                bytes.concat(type(NFT).creationCode, abi.encode(name, symbol, baseURI, burnAuth, forwarder))
             )
         );
         // c = new NFT(name,symbol);

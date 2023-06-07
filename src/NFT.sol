@@ -8,27 +8,53 @@ import {ERC721URIStorage} from "openzeppelin-contracts/contracts/token/ERC721/ex
 import {ERC721Burnable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {Counters} from "openzeppelin-contracts/contracts/utils/Counters.sol";
+import {ERC2771Context} from "openzeppelin-contracts/contracts/metatx/ERC2771Context.sol";
+import {Context} from "openzeppelin-contracts/contracts/utils/Context.sol";
 import {IERC5484} from "src/interfaces/IERC5484.sol";
+import "forge-std/console2.sol";
 
 // REFERENCE: https://github.com/Bisonai/sbt-contracts/blob/master/contracts/SBT.sol
-contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable {
-    event Issued(address indexed from, address indexed to, uint256 indexed tokenId, IERC5484.BurnAuth burnAuth);
-
+contract NFT is ERC2771Context, ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, IERC5484, Ownable {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
     string private __baseURI;
-    IERC5484.BurnAuth private immutable _burnAuth;
+    BurnAuth private immutable __burnAuth;
     mapping(uint256 => bool) private _issued;
+    // tokenId -> [issuer, receiver]
+    mapping(uint256 => address[2]) private _issuerOwnerOf;
 
-    constructor(string memory name_, string memory symbol_, string memory baseURI_, IERC5484.BurnAuth burnAuth_)
-        ERC721(name_, symbol_)
-    {
+    constructor(
+        string memory name_,
+        string memory symbol_,
+        string memory baseURI_,
+        BurnAuth burnAuth_,
+        address forwarder
+    ) ERC2771Context(forwarder) ERC721(name_, symbol_) {
         __baseURI = baseURI_;
-        _burnAuth = burnAuth_;
+        __burnAuth = burnAuth_;
     }
 
-    function safeMint(address to, string memory uri) external onlyOwner returns (uint256) {
+    modifier onlyBurnAuthorised(uint256 tokenId) {
+        BurnAuth burnAuthorisation = _burnAuth(tokenId);
+        if (burnAuthorisation == BurnAuth.Both) {
+            require(
+                _msgSender() == _issuerOwnerOf[tokenId][0] || _msgSender() == _issuerOwnerOf[tokenId][1],
+                "NFT: Only issuer and owner has burn authorisation"
+            );
+        } else if (burnAuthorisation == BurnAuth.Neither) {
+            require(false, "NFT: No one has the burn authorisation");
+        } else if (burnAuthorisation == BurnAuth.OwnerOnly) {
+            console2.log("sender :", _msgSender());
+            require(_msgSender() == _issuerOwnerOf[tokenId][1], "NFT: Only owner has burn authorisation");
+        } else {
+            require(_msgSender() == _issuerOwnerOf[tokenId][0], "NFT: Only issuer has burn authorisation");
+        }
+        _;
+    }
+
+    function safeMint(address to, string memory uri) external returns (uint256) {
+        console2.log(_msgSender());
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -37,13 +63,14 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
     }
 
     // TODO: Make it better later
-    function burnAuth( /*uint256 tokenId*/ ) external view returns (IERC5484.BurnAuth) {
-        return _burnAuth;
+    function burnAuth(uint256 tokenId) external view returns (BurnAuth) {
+        require(_issued[tokenId], "NFT: Unassigned token id's are invalid");
+        return _burnAuth(tokenId);
     }
 
-    function isApprovedForAll(address owner, address operator) public view override(ERC721, IERC721) returns (bool) {
-        return msg.sender == super.owner() || super.isApprovedForAll(owner, operator);
-    }
+    // function isApprovedForAll(address owner, address operator) public view override(ERC721, IERC721) returns (bool) {
+    //     return msg.sender == super.owner() || super.isApprovedForAll(owner, operator);
+    // }
 
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
@@ -74,9 +101,9 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
     }
 
     // TODO: do the burning validation later. add modifiers to functions
-    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
-        // require(, "NFT: Caller doesn't have burn permission");
-        _issued[tokenId] = false;
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) onlyBurnAuthorised(tokenId) {
+        delete _issued[tokenId];
+        delete _issuerOwnerOf[tokenId];
         super._burn(tokenId);
     }
 
@@ -84,8 +111,21 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Owna
         return __baseURI;
     }
 
+    function _msgSender() internal view override(Context, ERC2771Context) returns (address) {
+        return ERC2771Context._msgSender();
+    }
+
+    function _msgData() internal view override(Context, ERC2771Context) returns (bytes calldata) {
+        return ERC2771Context._msgData();
+    }
+
     function _issueToken(address from, address to, uint256 tokenId) private {
         _issued[tokenId] = true;
-        emit Issued(from, to, tokenId, _burnAuth);
+        _issuerOwnerOf[tokenId] = [from, to];
+        emit Issued(from, to, tokenId, __burnAuth);
+    }
+
+    function _burnAuth(uint256 tokenId) private view returns (BurnAuth) {
+        return __burnAuth;
     }
 }
