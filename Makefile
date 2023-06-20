@@ -15,7 +15,7 @@ abi: build
 	rm -rf abi
 	mkdir -p abi
 	mv ./out/MainFactory.sol/MainFactory.json abi/
-	mv ./out/NFT.sol/NFT.json abi/
+	mv ./out/Certificate.sol/Certificate.json abi/
 	mv ./out/MultiSigWallet.sol/MultiSigWallet.json abi/
 
 deploy-dryrun: build abi
