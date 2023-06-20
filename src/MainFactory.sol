@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
-import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {MultiSigWallet} from "./MultiSigWallet.sol";
 
 contract MainFactory is Ownable {

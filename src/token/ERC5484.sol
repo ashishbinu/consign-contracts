@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {ERC165} from "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
-import {ERC721} from "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
-// import {ERC721URIStorage} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import {Context} from "openzeppelin-contracts/contracts/utils/Context.sol";
+import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Context} from "@openzeppelin/contracts/utils/Context.sol";
 import {IERC5484} from "../interfaces/IERC5484.sol";
 
 /* {

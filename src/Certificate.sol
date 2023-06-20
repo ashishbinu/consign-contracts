@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {ERC721URIStorage} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import {ERC721Enumerable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import {ERC721} from "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
-import {Context} from "openzeppelin-contracts/contracts/utils/Context.sol";
-import {Counters} from "openzeppelin-contracts/contracts/utils/Counters.sol";
-import {ERC5484} from "./ERC5484.sol";
+import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Context} from "@openzeppelin/contracts/utils/Context.sol";
+import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
+import {ERC5484} from "./token/ERC5484.sol";
 
 contract Certificate is Context, ERC721Enumerable, ERC721URIStorage, ERC5484 {
     using Counters for Counters.Counter;
