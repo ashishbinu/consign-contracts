@@ -15,13 +15,14 @@ contract Certificate is Context, ERC721Enumerable, ERC721URIStorage, ERC5484 {
 
     constructor() ERC5484("Certificate", "CRT") {}
 
-    function issueCertificate(address to, string memory tokenURI_) external {
+    function issueCertificate(address to, string memory tokenURI_) external returns (uint256) {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         // TODO: Get approval from the receiver to issue
         // _setIssuanceApproval(tokenId, to, true);
         _issue(_msgSender(), to, tokenId, BurnAuth.OwnerOnly);
         _setTokenURI(tokenId, tokenURI_);
+        return tokenId;
     }
 
     function deleteCertificate(uint256 tokenId) external {
