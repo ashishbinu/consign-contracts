@@ -12,3 +12,6 @@ broadcast/
 .env
 
 .vscode
+
+# tmux startup file
+.tmux.sh
