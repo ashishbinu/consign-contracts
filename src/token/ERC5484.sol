@@ -66,7 +66,7 @@ contract ERC5484 is Context, ERC165, ERC721, IERC5484 {
         virtual
         override(ERC721)
     {
-        require(_isIssuing, "ERC5484: token is not transferrable");
+        require(_isIssuing || to == address(0), "ERC5484: token is not transferrable");
         ERC721._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
