@@ -12,12 +12,7 @@ contract MainFactoryDeployScript is CREATE3Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        c = MainFactory(
-            create3.deploy(
-                getCreate3ContractSalt("NFT"),
-                bytes.concat(type(MainFactory).creationCode, abi.encode())
-            )
-        );
+        c = MainFactory(create3.deploy(getCreate3ContractSalt("NFT"), bytes.concat(type(MainFactory).creationCode)));
 
         vm.stopBroadcast();
     }

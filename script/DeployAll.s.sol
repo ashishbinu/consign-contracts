@@ -3,9 +3,9 @@ pragma solidity ^0.8.17;
 
 import {CREATE3Script} from "./base/CREATE3Script.sol";
 import {MainFactory} from "../src/MainFactory.sol";
-import {NFT} from "../src/NFT.sol";
+import {Certificate} from "../src/Certificate.sol";
 import {MultiSigWallet} from "../src/MultiSigWallet.sol";
-import {NFTDeployScript} from "../script/DeployNFT.s.sol";
+import {CertificateDeployScript} from "../script/DeployCertificate.s.sol";
 import {MultiSigWalletDeployScript} from "../script/DeployMultiSigWallet.s.sol";
 import {MainFactoryDeployScript} from "../script/DeployMainFactory.s.sol";
 import "forge-std/console.sol";
@@ -16,13 +16,12 @@ contract DeployScript is CREATE3Script {
     function run() external {
         uint256 deployerPrivateKey = uint256(vm.envBytes32("PRIVATE_KEY"));
 
-        NFT nft = new NFTDeployScript().run();
+        Certificate nft = new CertificateDeployScript().run();
         MultiSigWallet msw = new MultiSigWalletDeployScript().run();
         MainFactory mf = new MainFactoryDeployScript().run();
 
         vm.startBroadcast(deployerPrivateKey);
 
-        mf.setCertificateNFTAddress(address(nft));
         mf.setMultiSigWalletAddress(address(msw));
 
         // nft.transferOwnership(address(mf));
