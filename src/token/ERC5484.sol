@@ -82,7 +82,7 @@ contract ERC5484 is Context, ERC165, ERC721, IERC5484 {
     }
 
     function _issue(address from, address to, uint256 tokenId, BurnAuth burnAuth_) internal virtual isIssuing {
-        require(_issued[tokenId], "ERC5484: token is already issued");
+        require(!_issued[tokenId], "ERC5484: token is already issued");
         // FIX: require(_issuanceApprovalOf[tokenId][to], "ERC5484: token is not approved for issuance by receiver");
 
         // TODO: burnAuth SHALL be presented to receiver before issuance.
