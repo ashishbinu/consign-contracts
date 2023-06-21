@@ -24,3 +24,5 @@ deploy-dryrun: build abi
 deploy: build abi
 	forge script script/DeployAll.s.sol --fork-url ${DEV_URL} --broadcast
 
+deploy-with-private-key: build abi
+	forge script script/DeployAll.s.sol --fork-url ${DEV_URL} --broadcast --private-key ${PRIVATE_KEY} --legacy
