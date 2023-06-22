@@ -5,8 +5,11 @@ build:
 test:
 	forge test -vvvv
 
-node:
-	forge anvil --chain-id 69420
+node-fork:
+	anvil --fork-url ${RPC_URL_MUMBAI}
+
+node-local:
+	anvil --chain-id 69420
 
 format:
 	forge fmt
