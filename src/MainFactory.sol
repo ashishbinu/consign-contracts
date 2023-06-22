@@ -8,7 +8,7 @@ import {MultiSigWallet} from "./MultiSigWallet.sol";
 contract MainFactory is Ownable {
     MultiSigWallet public multiSigWallet;
 
-    mapping(address => address[]) public multiSigWalletsOf;
+    mapping(address => address[]) private _multiSigWalletsOf;
 
     function setMultiSigWalletAddress(address _addr) external onlyOwner {
         multiSigWallet = MultiSigWallet(payable(_addr));
@@ -22,9 +22,13 @@ contract MainFactory is Ownable {
         MultiSigWallet(payable(proxy)).initialize(_owners, _numConfirmationsRequired);
 
         for (uint256 i = 0; i < _owners.length; i++) {
-            multiSigWalletsOf[_owners[i]].push(proxy);
+            _multiSigWalletsOf[_owners[i]].push(proxy);
         }
 
         return proxy;
+    }
+
+    function multiSigWalletsOf(address owner) public view returns (address[] memory) {
+        return _multiSigWalletsOf[owner];
     }
 }
