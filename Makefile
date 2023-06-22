@@ -1,9 +1,12 @@
-.PHONY: build test format lint abi deploy deploy-dryrun
+.PHONY: build test node format lint abi deploy deploy-dryrun
 build:
 	forge build
 
 test:
 	forge test -vvvv
+
+node:
+	forge anvil --chain-id 69420
 
 format:
 	forge fmt
@@ -18,11 +21,11 @@ abi: build
 	mv ./out/Certificate.sol/Certificate.json abi/
 	mv ./out/MultiSigWallet.sol/MultiSigWallet.json abi/
 
-deploy-dryrun: build abi
+deploy-dryrun: abi
 	forge script script/DeployAll.s.sol --fork-url ${DEV_URL}
 
-deploy: build abi
+deploy: abi
 	forge script script/DeployAll.s.sol --fork-url ${DEV_URL} --broadcast
 
-deploy-with-private-key: build abi
+deploy-with-private-key: abi
 	forge script script/DeployAll.s.sol --fork-url ${DEV_URL} --broadcast --private-key ${PRIVATE_KEY} --legacy
