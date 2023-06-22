@@ -10,6 +10,8 @@ contract MainFactory is Ownable {
 
     mapping(address => address[]) private _multiSigWalletsOf;
 
+    event MultiSigWalletCreated(address indexed wallet, address[] indexed owners);
+
     function setMultiSigWalletAddress(address _addr) external onlyOwner {
         multiSigWallet = MultiSigWallet(payable(_addr));
     }
@@ -25,6 +27,7 @@ contract MainFactory is Ownable {
             _multiSigWalletsOf[_owners[i]].push(proxy);
         }
 
+        emit MultiSigWalletCreated(proxy, _owners);
         return proxy;
     }
 
