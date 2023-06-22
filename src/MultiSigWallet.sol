@@ -28,7 +28,7 @@ contract MultiSigWallet is Initializable {
     event ExecuteTransaction(address indexed owner, uint256 indexed txIndex);
 
     modifier onlyOwner() {
-        require(isOwner[msg.sender], "not owner");
+        require(isOwner[msg.sender], "MultiSigWallet: caller is not the owner of the wallet.");
         _;
     }
 
