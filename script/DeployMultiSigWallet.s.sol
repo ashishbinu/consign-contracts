@@ -12,13 +12,7 @@ contract MultiSigWalletDeployScript is CREATE3Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        c = MultiSigWallet(
-            payable(
-                create3.deploy(
-                    getCreate3ContractSalt("MultiSigWallet"), bytes.concat(type(MultiSigWallet).creationCode)
-                )
-            )
-        );
+        c = new  MultiSigWallet();
 
         vm.stopBroadcast();
     }

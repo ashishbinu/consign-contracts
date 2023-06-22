@@ -18,6 +18,8 @@ contract Deploy is Test {
         address a = address(new Certificate());
         address b = address(new MultiSigWallet());
 
+        MainFactory(c).setMultiSigWalletAddress(b);
+
         console2.log("Certificate : ", a);
         console2.log("MultiSigWallet : ", b);
         console2.log("MainFactory : ", c);
