@@ -5,32 +5,23 @@ import "forge-std/Test.sol";
 import {Certificate} from "src/Certificate.sol";
 import {MultiSigWallet} from "src/MultiSigWallet.sol";
 import {MainFactory} from "src/MainFactory.sol";
-import {IERC5484} from "src/interfaces/IERC5484.sol";
+import {DeployScript} from "../script/DeployAll.s.sol";
 
 contract CertificateTest is Test {
     MainFactory public mf;
     Certificate public crt;
     MultiSigWallet public msw;
 
-    address public issuer;
-    address public receiver;
-    string public uri;
+    address issuer = address(0xBEEF);
+    address receiver = address(0xB0B);
+    string uri = "RANDOM_URI";
 
     function setUp() public virtual {
-        crt = new Certificate();
-        msw = new MultiSigWallet();
-        mf = new MainFactory();
-
-        // crt.transferreceivership(address(mf));
-        // crt.setApprovalForAll(address(mf), true);
-        issuer = address(0xBEEF);
-        receiver = address(0xB0B);
-        uri = "RANDOM_URI";
+        (mf, crt, msw) = new DeployScript().run();
     }
 }
 
 contract IssueCertificate is CertificateTest {
-
     /// forge-config: default.fuzz.runs = 1000
     function test_CertificateIsIssued() public {
         vm.prank(issuer);
