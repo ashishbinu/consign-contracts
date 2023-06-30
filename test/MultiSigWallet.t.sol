@@ -129,3 +129,63 @@ contract TransactionConfirmation is MultiSigWalletTest {
         wallet.confirmTransaction(_txIndex);
     }
 }
+
+contract TransactionExecution is MultiSigWalletTest {
+    MultiSigWallet wallet;
+    bytes data;
+    uint256 txIndex;
+
+    event ExecuteTransaction(address indexed owner, uint256 indexed txIndex);
+
+    function setUp() public override {
+        super.setUp();
+
+        wallet = MultiSigWallet(payable(issuer));
+        data = abi.encodeWithSignature("issueCertificate(address,string)", receiver, uri);
+
+        txIndex = 0;
+        vm.prank(owner1);
+        wallet.submitTransaction(address(crt), txIndex, data);
+
+        vm.prank(owner1);
+        wallet.confirmTransaction(txIndex);
+        vm.prank(owner2);
+        wallet.confirmTransaction(txIndex);
+    }
+
+    function test_ExecuteTransaction() public {
+        vm.expectEmit();
+        emit ExecuteTransaction(owner3, txIndex);
+
+        vm.prank(owner3);
+        wallet.executeTransaction(txIndex);
+
+        (,,, bool executed,) = wallet.transactions(txIndex);
+        assert(executed);
+    }
+
+    function test_RevertIf_CallerReExecutesTransaction() public {
+        vm.prank(owner3);
+        wallet.executeTransaction(txIndex);
+
+        vm.expectRevert("MultiSigWallet: Transaction already executed");
+
+        vm.prank(owner2);
+        wallet.executeTransaction(txIndex);
+    }
+
+    function test_RevertIf_CallerNotOwner() public {
+        vm.expectRevert("MultiSigWallet: caller is not the owner of the wallet.");
+
+        vm.prank(address(0x69));
+        wallet.executeTransaction(txIndex);
+    }
+
+    function test_RevertIf_TransactionNotExist() public {
+        uint256 _txIndex = 1;
+
+        vm.expectRevert("MultiSigWallet: Transaction does not exist");
+        vm.prank(owner1);
+        wallet.executeTransaction(_txIndex);
+    }
+}
