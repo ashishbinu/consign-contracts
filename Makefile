@@ -1,4 +1,4 @@
-.PHONY: build test node format lint abi deploy deploy-dryrun
+.PHONY: build test node format lint deploy deploy-dryrun
 build:
 	forge build
 
@@ -17,18 +17,11 @@ format:
 lint:
 	solhint src/**/*.sol && solhint src/*.sol
 
-abi: build
-	rm -rf abi
-	mkdir -p abi
-	mv ./out/MainFactory.sol/MainFactory.json abi/
-	mv ./out/Certificate.sol/Certificate.json abi/
-	mv ./out/MultiSigWallet.sol/MultiSigWallet.json abi/
-
-deploy-dryrun: abi
+deploy-dryrun:
 	forge script script/DeployAll.s.sol --fork-url ${DEV_URL}
 
-deploy: abi
+deploy:
 	forge script script/DeployAll.s.sol --fork-url ${DEV_URL} --broadcast
 
-deploy-with-private-key: abi
+deploy-with-private-key:
 	forge script script/DeployAll.s.sol --fork-url ${DEV_URL} --broadcast --private-key ${PRIVATE_KEY} --legacy
