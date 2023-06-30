@@ -2,8 +2,9 @@
 pragma solidity 0.8.17;
 
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
-contract MultiSigWallet is Initializable {
+contract MultiSigWallet is IERC721Receiver, Initializable {
     struct Transaction {
         address to;
         uint256 value;
@@ -135,5 +136,13 @@ contract MultiSigWallet is Initializable {
         Transaction storage transaction = transactions[_txIndex];
 
         return (transaction.to, transaction.value, transaction.data, transaction.executed, transaction.numConfirmations);
+    }
+
+    function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes memory _data)
+        external
+        pure
+        returns (bytes4)
+    {
+        return IERC721Receiver.onERC721Received.selector;
     }
 }
