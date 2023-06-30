@@ -12,6 +12,11 @@ contract MainFactory is Ownable {
 
     event MultiSigWalletCreated(address indexed wallet, address[] indexed owners);
 
+    constructor(address _addr, address owner) {
+        multiSigWallet = MultiSigWallet(payable(_addr));
+        transferOwnership(owner);
+    }
+
     function setMultiSigWalletAddress(address _addr) external onlyOwner {
         multiSigWallet = MultiSigWallet(payable(_addr));
     }

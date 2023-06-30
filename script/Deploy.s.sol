@@ -14,11 +14,9 @@ contract Deploy is Test {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        address c = address(new MainFactory());
         address a = address(new Certificate());
         address b = address(new MultiSigWallet());
-
-        MainFactory(c).setMultiSigWalletAddress(b);
+        address c = address(new MainFactory(b,msg.sender));
 
         console2.log("Certificate : ", a);
         console2.log("MultiSigWallet : ", b);
