@@ -130,6 +130,71 @@ contract TransactionConfirmation is MultiSigWalletTest {
     }
 }
 
+contract ConfirmationRevoke is MultiSigWalletTest {
+    MultiSigWallet wallet;
+    bytes data;
+    uint256 txIndex;
+
+    event RevokeConfirmation(address indexed owner, uint256 indexed txIndex);
+
+    function setUp() public override {
+        super.setUp();
+
+        wallet = MultiSigWallet(payable(issuer));
+        data = abi.encodeWithSignature("issueCertificate(address,string)", receiver, uri);
+
+        vm.prank(owner1);
+        wallet.submitTransaction(address(crt), txIndex, data);
+
+        vm.prank(owner1);
+        wallet.confirmTransaction(txIndex);
+
+        vm.prank(owner2);
+        wallet.confirmTransaction(txIndex);
+    }
+
+    function test_RevokeConfirmation() public {
+        vm.expectEmit();
+        emit RevokeConfirmation(owner2, txIndex);
+
+        (,,,, uint256 numConfirmationsBefore) = wallet.transactions(txIndex);
+
+        vm.prank(owner2);
+        wallet.revokeConfirmation(txIndex);
+
+        assertEq(wallet.isConfirmed(txIndex, owner2), false);
+
+        (,,,, uint256 numConfirmationsAfter) = wallet.transactions(txIndex);
+
+        assertEq(numConfirmationsAfter, numConfirmationsBefore - 1);
+    }
+
+    function test_RevertIf_CallerReRevokeConfirmation() public {
+        vm.startPrank(owner2);
+        wallet.revokeConfirmation(txIndex);
+
+        vm.expectRevert("MultiSigWallet: Transaction not confirmed");
+        wallet.revokeConfirmation(txIndex);
+
+        vm.stopPrank();
+    }
+
+    function test_RevertIf_CallerNotOwner() public {
+        vm.expectRevert("MultiSigWallet: caller is not the owner of the wallet.");
+
+        vm.prank(address(0x69));
+        wallet.revokeConfirmation(txIndex);
+    }
+
+    function test_RevertIf_TransactionNotExist() public {
+        uint256 _txIndex = 1;
+
+        vm.expectRevert("MultiSigWallet: Transaction does not exist");
+        vm.prank(owner1);
+        wallet.revokeConfirmation(_txIndex);
+    }
+}
+
 contract TransactionExecution is MultiSigWalletTest {
     MultiSigWallet wallet;
     bytes data;
