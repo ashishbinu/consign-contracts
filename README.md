@@ -2,6 +2,17 @@
 
 🔒 A Secure Blockchain-Based Solution for Certification Issuance 🔒
 
+## Table of Contents:
+
+-   [Introduction](#introduction)
+-   [Features](#features)
+-   [Architecture](#architecture)
+-   [Installation](#installation)
+-   [Contributing](#contributing)
+-   [Contact](#contact)
+
+## Introduction
+
 ![Consign Logo](./docs/logo.png)
 
 Consign is a cutting-edge project designed to tackle the challenges associated with certification forgery. In various industries, the need for reliable certifications and official documents is paramount to ensure professional competence and career progression. However, the prevalence of fake certificates and documents has become a significant concern, as they are becoming increasingly difficult to distinguish from authentic ones.
