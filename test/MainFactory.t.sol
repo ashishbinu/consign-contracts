@@ -44,6 +44,15 @@ contract MainFactoryTest is Test {
     }
 }
 
+contract MainFactoryConstructor is MainFactoryTest {
+    function setUp() public override {}
+
+    function test_MainFactoryConstructor() public {
+        MainFactory mf = new MainFactory(address(0xADD69), address(0xBEEF));
+        assertEq(mf.owner(), address(0xBEEF));
+    }
+}
+
 contract CreateMultiSigWallet is MainFactoryTest {
     function test_MultiSigWalletCreation() public {
         address proxy = mf.createMultiSigWallet(owners, 3);
