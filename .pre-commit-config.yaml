@@ -1,0 +1,10 @@
+repos:
+  - repo: local
+    hooks:
+      - id: format
+        name: Format Solidity Code
+        description: Format Solidity code using `forge fmt`
+        entry: forge fmt
+        language: system
+        types:
+          - file

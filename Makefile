@@ -1,4 +1,4 @@
-.PHONY: build test node format lint deploy deploy-dryrun
+.PHONY: build test node format lint deploy deploy-dryrun githook
 build:
 	forge build
 
@@ -25,3 +25,6 @@ deploy:
 
 deploy-with-private-key:
 	forge script script/DeployAll.s.sol --fork-url ${DEV_URL} --broadcast --private-key ${PRIVATE_KEY} --legacy
+
+githook:
+	pre-commit install
