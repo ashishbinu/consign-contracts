@@ -6,34 +6,36 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {MultiSigWallet} from "./MultiSigWallet.sol";
 
 contract MainFactory is Ownable {
-    MultiSigWallet public multiSigWallet;
+    address public multiSigWalletAddress;
 
     mapping(address => address[]) private _multiSigWalletsOf;
 
     event MultiSigWalletCreated(address indexed wallet, address[] indexed owners);
 
     constructor(address _addr, address owner) {
-        multiSigWallet = MultiSigWallet(payable(_addr));
+        multiSigWalletAddress = _addr;
         transferOwnership(owner);
     }
 
     function setMultiSigWalletAddress(address _addr) external onlyOwner {
-        multiSigWallet = MultiSigWallet(payable(_addr));
+        multiSigWalletAddress = _addr;
     }
 
     function createMultiSigWallet(address[] memory _owners, uint256 _numConfirmationsRequired)
         external
-        returns (address)
+        returns (address proxy)
     {
-        address proxy = Clones.clone(address(multiSigWallet));
+        proxy = Clones.clone(multiSigWalletAddress);
         MultiSigWallet(payable(proxy)).initialize(_owners, _numConfirmationsRequired);
 
-        for (uint256 i = 0; i < _owners.length; i++) {
+        for (uint256 i = 0; i < _owners.length;) {
             _multiSigWalletsOf[_owners[i]].push(proxy);
+            unchecked {
+                ++i;
+            }
         }
 
         emit MultiSigWalletCreated(proxy, _owners);
-        return proxy;
     }
 
     function multiSigWalletsOf(address owner) public view returns (address[] memory) {
